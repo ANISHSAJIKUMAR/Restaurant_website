@@ -1,0 +1,189 @@
+Ques 1. Explain shared pool & buffer cache.
+Ans.
+1. SHARED POOL
+The shared pool is the part of the SGA (System Global Area) where the following things are stored:
+-> Optimized query plans
+-> Security checks
+-> Parsed SQL statements
+-> Packages
+-> Object information.
+
+ALLOCATION IN MEMORY:
+Memory in the shared pool is managed and freed in a LRU fashion, that is, Memory that isn’t used for long gets aged out first. This is in contrast to the large pool, where memory is managed in a heap (using allocate and free).
+
+CHECK SHARED POOL SIZE:
+select    name, bytes/1024/1024 "MB" from v$sgastat where pool = 'shared pool'
+ order by bytes desc;
+
+2. BUFFER CACHE:
+The buffer cache is part of the SGA (System Global Area). It holds copies of data blocks so as they can be accessed quicker by oracle than by reading them off disk.
+
+PURPOSE OF BUFFER CACHE:
+The purpose of the buffer cache is to minimize physical IO. When a block is read by Oracle, it places this block into the buffer cache, because there is a chance that this block is needed again. Reading a block from the buffer cache is less costly (in terms of time) than reading it from the disk. 
+
+FLUSHING BUFFER CACHE :
+In ORACLE 10g you can Flush Buffer using :
+ alter system flush buffer_cache.
+
+
+Ques 2.What do you mean by Tuning Rollback Segments ?
+Ans.A rollback segment is Oracle's tool for maintaining read-consistency and for returning incomplete transactions to their initial state.  For databases that experience a high-volume of SQL insert, update or delete activity, we commonly see a huge amount of "before" images written to the rollback segments.  The before images will be used to restore the transaction if it fails before completing all work successfully.
+
+For active Oracle databases, the rollback segments should be large enough to avoid any "snapshot too old" messages.  The snapshot too old message appears when a long-running update cannot hold all of the "before" row images in the rollback segment.  Of course, every Oracle system is different, and you will need to determine your own sizes.
+
+For example, if it is determined that a 64 megabyte rollback segment is large enough to avoid all "snapshot too old" messages, then you would want to allocate the rollback segment with the following parameters:
+
+INITIAL=8M
+NEXT=8M
+MINEXTENTS=4
+
+Ques 3.What is difference between Restoring and Recovery of database?
+Ans 3.
+Restoring of database involves copying backup files from secondary storage (backup media) to disk. This can be done to replace damaged files or to copy/move a database to a new location.
+
+Recovery of database is the process of applying redo logs to the database to roll it forward. One can roll-forward until a specific point-in-time (before the disaster occurred), or roll-forward until the last transaction recorded in the log files.
+
+SQL> connect SYS as SYSDBA
+SQL> RECOVER DATABASE UNTIL TIME '2001-03-06:16:00:00' USING BACKUP CONTROLFILE;
+RMAN> run {
+  set until time to_date('04-Aug-2004 00:00:00', 'DD-MON-YYYY HH24:MI:SS');
+  restore database;
+  recover database;
+}
+
+Ques 4. What is the benefit of running the DB in archivelog mode over no archivelog mode?
+Ans 4.If we run in NO ARCHIVELOG mode, if thedatabase crashes, we can only recover to the point of time of your last backup.
+ARCHIVELOG MODE allows us to recover to the point of the crash. Downside is it takes more diskspace and can cause the db to freeze if that disk fills up. If we have a production system with no tolerance for loss, this isn't an option.
+If we're running a DW that does nightly loads, then we can get away with NOARCHIVELOG mode most likely.
+
+
+Ques 5.What is the benefit of running the DB in archivelog mode over no archivelog mode?
+Ans 5.
+In traditional HOT BACKUP tablespaces are put in hot backup mode, where as in RMAN no need to do that.
+The redolog generation is pretty high during traditional hot backup due to the whole block change is
+recorded rather than just changed information. This makes the block consistent at recovery and thus avoids
+the fractured block read phenomenon. RMAN, on the other hand, is not an operating-system utility but an
+Oracle Database–aware product. Hence, all reads by RMAN for the purpose of backup are performed
+using the block size of the database block itself, thus avoiding fractured block reads. When RMAN does
+encounter inconsistencies while reading blocks, RMAN notes these errors in the alert log and re-reads the
+block as may be required.
+
+Ques 6.What is the difference between Redo, Rollback and Undo?
+Ans 6. 1. REDO
+In addition to datafiles for storing database data, every Oracle database has a set of (two or more) redo log files.
+The redo log records all changes made to data, including both uncommitted and committed changes.
+To change data a session will generate some redo change vectors and record them in the redo log buffer.
+As it records the redo change vectors it applies the changes to the data blocks (including the undo blocks)
+
+Changes are saved to redo by the log writer process:
+The redo log can consist of two parts: the online redo log and the archived redo log.
+To avoid losing the database due to a single point of failure, Oracle can maintain multiple sets of online redo log files.
+
+Assuming the database operates in ARCHIVELOG mode, Oracle will create an archived redo log at every checkpoint - these can be used to recover from a disk failure.
+
+Archived redo logs should be backed up and deleted regularly.
+
+Online redo logs should not be backed up.
+
+The size of a redo log file directly influences checkpoint frequency and performance. Checkpoint frequency can vary widely according to system activity but two or three per hour is typical. To insure a reasonable frequency of log switches set ALTER SYSTEM SET ARCHIVE_LAG_TARGET = 2400 SCOPE=BOTH;
+
+2. ROLLBACK
+Rolling back means undoing changes to data that have been performed within an uncommitted SQL transaction.
+
+If at any time an SQL statement causes an error, all effects of the statement are rolled back.
+The user can also request a statement-level rollback by issuing a ROLLBACK statement.
+
+Rollback segments store the data as it was before changes were made. This is in contrast to the redo log which is a record of the insert/update/deletes.
+
+3. UNDO
+Oracle Database must have a method of maintaining information that is used to roll back, or undo, changes to the database. Such information consists of records of the actions of transactions, primarily before they are committed. These records are collectively referred to as undo.
+
+Undo records are used to:
+
+Roll back transactions when a ROLLBACK statement is issued
+Recover the database
+Provide read consistency
+Analyze data as of an earlier point in time by using Flashback Query
+
+Ques 7. How to find out background processes ?
+Ans 7.
+We can see the Oracle background processes with this query:
+
+select *
+from
+   v$session
+where
+   type ='BACKGROUND';
+
+Here are some of the most important Oracle background processes:
+
+ARCH - (Optional) Archive process writes filled redo logs to the archive log location(s). In RAC, the various ARCH processes can be utilized to ensure that copies of the archived redo logs for each instance are available to the other instances in the RAC setup should they be needed for recovery.
+
+CJQ - Job Queue Process (CJQ) - Used for the job scheduler. The job scheduler includes a main program (the coordinator) and slave programs that the coordinator executes. The parameter job_queue_processes controls how many parallel job scheduler jobs can be executed at one time.
+
+CKPT - Checkpoint process writes checkpoint information to control files and data file headers.
+
+CQJ0 - Job queue controller process wakes up periodically and checks the job log. If a job is due, it spawns Jnnnn processes to handle jobs.
+
+DBWR - Database Writer or Dirty Buffer Writer process is responsible for writing dirty buffers from the database block cache to the database data files. Generally, DBWR only writes blocks back to the data files on commit, or when the cache is full and space has to be made for more blocks. The possible multiple DBWR processes in RAC must be coordinated through the locking and global cache processes to ensure efficient processing is accomplished.
+
+FMON - The database communicates with the mapping libraries provided by storage vendors through an external non-Oracle Database process that is spawned by a background process called FMON. FMON is responsible for managing the mapping information. When you specify the FILE_MAPPING initialization parameter for mapping data files to physical devices on a storage subsystem, then the FMON process is spawned.
+
+LGWR - Log Writer process is responsible for writing the log buffers out to the redo logs. In RAC, each RAC instance has its own LGWR process that maintains that instance's thread of redo logs.
+
+LMON - Lock Manager process
+
+MMON - The Oracle 10g background process to collect statistics for the Automatic Workload Repository (AWR).
+
+MMNL - This process performs frequent and lightweight manageability-related tasks, such as session history capture and metrics computation.
+
+MMAN - is used for internal database tasks that manage the automatic shared memory. MMAN serves as the SGA Memory Broker and coordinates the sizing of the memory components.
+
+PMON - Process Monitor process recovers failed process resources. If MTS (also called Shared Server Architecture) is being utilized, PMON monitors and restarts any failed dispatcher or server processes. In RAC, PMON's role as service registration agent is particularly important.
+
+Pnnn - (Optional) Parallel Query Slaves are started and stopped as needed to participate in parallel query operations.
+
+RBAL - This process coordinates rebalance activity for disk groups in an Automatic Storage Management instance.
+
+SMON - System Monitor process recovers after instance failure and monitors temporary segments and extents. SMON in a non-failed instance can also perform failed instance recovery for other failed RAC instance.
+
+WMON - The "wakeup" monitor process
+
+Ques 8.What is the use of iostat/vmstat/netstat command in Linux?
+Ans 8. iostat , vmstat and netstat are three most commonly used tools for performance monitoring. These comes built in with the operating system and are easy to use .iostat stands for input output statistics and reports statistics for i/o devices such as disk drives . vmstat gives the statistics for virtual Memory and netstat gives the network statistics.
+
+IOSTAT SYNTAX
+Basic synctax is iostat interval count
+option – let you specify the device for which information is needed like disk , cpu or terminal. (-d , -c , -t or -tdc ) . x options gives the extended statistics .
+interval – is time period in seconds between two samples . iostat 4 will give data at each 4 seconds interval.
+count – is the number of times the data is needed . iostat 4 5 will give data at 4 seconds interval 5 times.
+
+Ques 9. If an oracle database has crashed. How would you recover the transactions that are not in the backups?
+Ans 9. Crash and instance recovery involve two distinct operations: rolling forward the current, online datafiles by applying both committed and uncommitted transactions contained in online redo records, and then rolling back changes made in uncommitted transactions to their original state.
+
+Crash and instance recovery have the following shared characteristics:
+
+-> Redo the changes using the current online datafiles (as left on disk after the failure or SHUTDOWN ABORT)
+
+-> Use only the online redo logs and never require the use of the archived logs
+
+-> Have a recovery time governed by the number of terminated instances, amount of redo generated in each terminated redo thread since the last checkpoint, and by user-configurable factors such as the number and size of redo log files, checkpoint frequency, and the parallel recovery setting
+
+Ques 10. What is Row Chaning and Row Migration?
+Ans 10. ROW CHAINING:
+Row Chaining happens when a row is too large to fit into a single database block. For example, if you use a 8KB block size for your database and you need to insert a row of 16KB into it, Oracle will use 2/3 blocks and store the row in chain of data blocks for that segment. And Row Chaining happens only when the row is being inserted.
+you can show the block size of database by
+
+SQL> conn / as sysdba
+SQL> show parameter db_block_size
+
+ROW MIGRATION:
+Row Migration Occurs when a row that originally fitted into one data block is updated so
+that the overall row length increases, and the block's free space is already
+completely filled. In this case, Oracle migrates the data for the entire row
+to a new data block, assuming the entire row can fit in a new block. Oracle
+preserves the original row piece of a migrated row to point to the new block
+containing the migrated row: the rowid of a migrated row does not change.
+
+
+

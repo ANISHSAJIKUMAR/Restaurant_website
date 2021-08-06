@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf--8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width" , initial-scale=1>
+    <title>RR-Restaurant</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/icons-css/all.css">
+    <link href="css/icons-css/brands.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/icons-css/solid.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <nav id="header-nav" class="navbar navbar-default">
+            <div class="container">
+                <div class="navbar-header">
+                    <a href="index.html" class="pull-left visible-md visible-lg">
+                        <div id="logo-img" alt="logo image"></div>
+                    </a>
+
+                    <div class="navbar-brand">
+                        <a href="index.html">
+                            <h1>R-Square-Restaurant</h1>
+                        </a>
+                        <p>
+                            <span>Uttarakhand Food Corporation Certified</span>
+                        </p>
+                    </div>
+
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapsable-nav" aria-expanded="false">
+                        <span class="sr-only">Toggle Navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+
+                <div id="collapsable-nav" class="collapse navbar-collapse">
+                    <ul id="nav-list" class="nav navbar-nav navbar-right">
+                        <li class="visible-xs active">
+                            <a href="index.html">
+                                <span><i class="fas fa-utensils"></i></span>Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="menu-categories.html">
+                                <span><i class="fas fa-utensils"></i></span><br class="hidden-xs">Menu
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span><i class="fas fa-info-circle"></i></span><br class="hidden-xs">About
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span><i class="fas fa-info-circle"></i></span><br class="hidden-xs">Awards
+                            </a>
+                        </li>
+                        <li id="phone" class="hidden-xs">
+                            <a href="tel:8006684735">
+                                <span>8006684735</span>
+                            </a>
+                            <div>* We Deliver</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div id="call-btn" class="visible-xs">
+        <a class="btn" href="tel:80066484735">
+            <span></span> 8006684735
+        </a>
+    </div>
+    <div id="xs-deliever" class="text-center visible-xs">* We Deliver</div>
+
+    <div id="main-content" class="container">
+        <div class="jumbotron">
+            <img src="images/jumbotron_768.jpg" alt="Picture of restaurant" class="img-responsive visible-xs">
+        </div>
+
+        <div id="home-tiles" class="row">
+            <div class="col-md-4 col-sm-6 col-xs-12">
+                <a href="menu-categories.html">
+                    <div id="menu-tile"><span>Menu</span></div>
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 col-xs-12">
+                <a href="single-categories.html">
+                    <div id="specials-tile"><span>Specials</span></div>
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-12 col-xs-12">
+                <a href="https://goo.gl/maps/mw3gscrxUbFU7oaj6" target="_blank">
+                    <div id="map-tile">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3481.896100944772!2d79.41652321457371!3d29.226610463696318!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39a09d072dda2af7%3A0xf2da20a51facdfe9!2sAmrapali%20Cafeteria!5e0!3m2!1sen!2sin!4v1589148014119!5m2!1sen!2sin"
+                            width="100%" height="250px" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+                        <span>Map</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <!--end of home tiles-->
+    </div>
+    <!--end of #main-content-->
+
+    <footer class="panel-footer">
+        <div class="container">
+            <div class="row">
+                <section class="col-sm-4" id="hours">
+                    <span>Hours:</span><br> Monday-Saturday: 9:30am-5:00pm<br> Sunday: Closed
+                    <hr class="visible-xs">
+                </section>
+                <section class="col-sm-4" id="address">
+                    <span>Address:</span><br> Shikshanagar, Lamachaur<br> Haldwani
+                    <hr class="visible-xs">
+                </section>
+                <section class="col-sm-4" id="testimonials">
+                    <p>"Good Food at reasonable price"</p><br>
+                    <p>"A get together kinda place with lots of food and fun"</p>
+                </section>
+            </div>
+            <div class="text-center">
+                &copy; Copyright Ritesh Joshi (R-Square-Restaurant)
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+
+</html>
